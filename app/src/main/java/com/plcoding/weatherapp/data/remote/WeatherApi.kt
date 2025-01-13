@@ -8,7 +8,7 @@ interface WeatherApi {
             "wathercode,relativehumidity_2m," +
             "windspeed_10m,pressure_msl")
     suspend fun getWeather(
-        @Query("latitude") let: Double,
+        @Query("latitude") lat: Double,
         @Query("longitude") long: Double
     ): WeatherDto
 }
