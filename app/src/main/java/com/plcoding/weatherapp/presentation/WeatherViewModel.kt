@@ -9,6 +9,7 @@ import com.plcoding.weatherapp.domain.location.LocationTracker
 import com.plcoding.weatherapp.domain.repository.WeatherRepository
 import com.plcoding.weatherapp.domain.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -21,7 +22,7 @@ class WeatherViewModel @Inject constructor(
         private set
 
     fun loadWeatherInfo() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             state = state.copy(
                 isLoading = true,
                 error = null
@@ -31,13 +32,24 @@ class WeatherViewModel @Inject constructor(
                     is Resource.Success -> {
                         state = state.copy(
                             weatherInfo = result.data,
-
+                            isLoading = false,
+                            error = null
                         )
                     }
                     is Resource.Error -> {
-
+                        state = state.copy(
+                            weatherInfo = null,
+                            isLoading = false,
+                            error = result.message
+                        )
                     }
                 }
+            } ?: kotlin.run {
+                state = state.copy(
+                    isLoading = false,
+                    error = "Couldn't retrieve location." +
+                            " Make sure to grant permission and enabled GPS"
+                )
             }
         }
     }
